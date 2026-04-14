@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>Welcome to Post-Quantum OIDC Demo</h2>
+    <p style="font-size: 1.1em; line-height: 1.6; color: #555;">
+        This interactive demonstration showcases a complete Post-Quantum OpenID Connect implementation 
+        using KEMTLS for transport security and NIST-standardized post-quantum algorithms.
+    </p>
+</div>
+
+<div class="card">
+    <h2>🎯 What You Can Explore</h2>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #667eea;">
+            <h3 style="margin-top: 0;">🔑 KEMTLS Handshake</h3>
+            <p style="color: #666; margin-bottom: 15px;">
+                See how Key Encapsulation Mechanisms replace traditional TLS handshakes. 
+                Test Kyber512/768/1024 algorithms in real-time.
+            </p>
+            <a href="/demo/kemtls" style="display: inline-block; background: #667eea; color: white; padding: 10px 20px; 
+               border-radius: 8px; text-decoration: none; font-weight: 600;">Try KEMTLS →</a>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #764ba2;">
+            <h3 style="margin-top: 0;">✍️ Digital Signatures</h3>
+            <p style="color: #666; margin-bottom: 15px;">
+                Test post-quantum digital signatures using ML-DSA (Dilithium) and Falcon algorithms. 
+                Sign and verify messages instantly.
+            </p>
+            <a href="/demo/signatures" style="display: inline-block; background: #764ba2; color: white; padding: 10px 20px; 
+               border-radius: 8px; text-decoration: none; font-weight: 600;">Test Signatures →</a>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #28a745;">
+            <h3 style="margin-top: 0;">🎫 JWT Tokens</h3>
+            <p style="color: #666; margin-bottom: 15px;">
+                Create and verify JSON Web Tokens with post-quantum signatures. 
+                See token sizes and verification times for different algorithms.
+            </p>
+            <a href="/demo/jwt" style="display: inline-block; background: #28a745; color: white; padding: 10px 20px; 
+               border-radius: 8px; text-decoration: none; font-weight: 600;">Create JWT →</a>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #ff6b6b;">
+            <h3 style="margin-top: 0;">🔐 OIDC Flow</h3>
+            <p style="color: #666; margin-bottom: 15px;">
+                Experience a complete OpenID Connect authentication flow with post-quantum security. 
+                Step-by-step visualization of the entire process.
+            </p>
+            <a href="/demo/oidc" style="display: inline-block; background: #ff6b6b; color: white; padding: 10px 20px; 
+               border-radius: 8px; text-decoration: none; font-weight: 600;">Run OIDC Flow →</a>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #ffa500;">
+            <h3 style="margin-top: 0;">📊 Benchmarks</h3>
+            <p style="color: #666; margin-bottom: 15px;">
+                View comprehensive performance metrics from 32 benchmarked operations. 
+                Compare latencies and message sizes across algorithms.
+            </p>
+            <a href="/benchmarks" style="display: inline-block; background: #ffa500; color: white; padding: 10px 20px; 
+               border-radius: 8px; text-decoration: none; font-weight: 600;">View Results →</a>
+        </div>
+        
+        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #9b59b6;">
+            <h3 style="margin-top: 0;">🏗️ Architecture</h3>
+            <p style="color: #666; margin-bottom: 15px;">
+                Understand the 4-layer architecture: PQ Crypto → KEMTLS → JWT → OIDC. 
+                See how components interact securely.
+            </p>
+            <a href="/architecture" style="display: inline-block; background: #9b59b6; color: white; padding: 10px 20px; 
+               border-radius: 8px; text-decoration: none; font-weight: 600;">View Architecture →</a>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>🛡️ Security Features</h2>
+    <ul style="font-size: 1.1em; line-height: 2; color: #555;">
+        <li class="success-icon">Zero classical cryptography (no RSA, no ECDSA)</li>
+        <li class="success-icon">NIST-standardized algorithms (Kyber, ML-DSA, Falcon)</li>
+        <li class="success-icon">Forward secrecy via ephemeral KEMs</li>
+        <li class="success-icon">End-to-end post-quantum security</li>
+        <li class="success-icon">OpenID Connect protocol compliance</li>
+    </ul>
+</div>
+
+<div class="card">
+    <h2>📈 Performance Highlights</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
+        <div class="metric">
+            <div class="metric-label">KEMTLS Handshake</div>
+            <div class="metric-value">0.040ms</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Complete OIDC Flow</div>
+            <div class="metric-value">0.181ms</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Total Handshake Size</div>
+            <div class="metric-value">3.6 KB</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Falcon-512 JWT</div>
+            <div class="metric-value">1.1 KB</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

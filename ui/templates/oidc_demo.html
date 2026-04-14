@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}OIDC Flow Demo - Post-Quantum OIDC{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>🔐 Complete OIDC Authentication Flow</h2>
+    <p style="color: #666; margin-bottom: 20px;">
+        Experience a complete OpenID Connect Authorization Code flow with post-quantum security.
+        This demonstrates the entire authentication process from login to userinfo retrieval.
+    </p>
+    
+    <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="margin-top: 0;">Demo Credentials</h3>
+        <p style="color: #666;"><strong>Client ID:</strong> {{ client_id }}</p>
+        <p style="color: #666;"><strong>Client Secret:</strong> {{ client_secret }}</p>
+        
+        <label for="username"><strong>Username:</strong></label>
+        <input type="text" id="username" value="demo_user">
+        
+        <label for="password"><strong>Password:</strong></label>
+        <input type="password" id="password" value="demo123">
+        
+        <button id="runFlow" onclick="runOIDCFlow()">
+            <span id="buttonText">Run Complete OIDC Flow</span>
+            <span id="buttonLoading" style="display: none;" class="loading"></span>
+        </button>
+    </div>
+    
+    <div id="results"></div>
+</div>
+
+<div class="card">
+    <h3>📋 OIDC Authorization Code Flow</h3>
+    <ol style="line-height: 2; color: #555;">
+        <li><strong>User Authentication:</strong> User provides credentials to Authorization Server</li>
+        <li><strong>Authorization Request:</strong> Client requests authorization with scopes</li>
+        <li><strong>Authorization Code:</strong> Server issues authorization code to client</li>
+        <li><strong>Token Exchange:</strong> Client exchanges code for ID Token and Access Token</li>
+        <li><strong>Token Verification:</strong> ID Token signature verified with PQ algorithm</li>
+        <li><strong>UserInfo Request:</strong> Access Token used to retrieve user information</li>
+    </ol>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function runOIDCFlow() {
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const button = document.getElementById('runFlow');
+    const buttonText = document.getElementById('buttonText');
+    const buttonLoading = document.getElementById('buttonLoading');
+    const resultsDiv = document.getElementById('results');
+    
+    button.disabled = true;
+    buttonText.style.display = 'none';
+    buttonLoading.style.display = 'inline-block';
+    
+    try {
+        const response = await fetch('/api/oidc/flow', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({username: username, password: password})
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            let stepsHTML = '';
+            data.steps.forEach(step => {
+                stepsHTML += `
+                    <div class="step">
+                        <span class="step-number">${step.step}</span>
+                        <div style="display: inline-block; width: calc(100% - 50px); vertical-align: top;">
+                            <strong>${step.name}</strong>
+                            <span style="float: right; color: #667eea; font-weight: bold;">${step.time_ms} ms</span>
+                            <div style="margin-top: 5px; color: #666; font-size: 0.9em;">
+                                ${step.code ? 'Code: ' + step.code : ''}
+                                ${step.id_token_size ? 'ID Token: ' + (step.id_token_size / 1024).toFixed(2) + ' KB' : ''}
+                                ${step.access_token_size ? ', Access Token: ' + (step.access_token_size / 1024).toFixed(2) + ' KB' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            const lastStep = data.steps[data.steps.length - 1];
+            
+            resultsDiv.innerHTML = `
+                <div class="result success">
+                    <h3 class="success-icon">Complete OIDC Flow Executed Successfully!</h3>
+                    
+                    <div class="metric" style="width: 100%; text-align: center; margin: 20px 0;">
+                        <div class="metric-label">Total Flow Time</div>
+                        <div class="metric-value">${data.total_time_ms} ms</div>
+                    </div>
+                    
+                    <h4>📋 Flow Steps:</h4>
+                    ${stepsHTML}
+                    
+                    <h4>👤 User Information Retrieved:</h4>
+                    <pre>${JSON.stringify(lastStep.userinfo, null, 2)}</pre>
+                    
+                    <h4>🎫 ID Token Claims:</h4>
+                    <pre>${JSON.stringify(lastStep.claims, null, 2)}</pre>
+                    
+                    <p style="margin-top: 20px; padding: 15px; background: #d4edda; border-radius: 8px; color: #155724;">
+                        <strong>✓ ${data.message}</strong>
+                    </p>
+                </div>
+            `;
+        } else {
+            resultsDiv.innerHTML = `
+                <div class="result error">
+                    <h3 class="error-icon">Error</h3>
+                    <p>${data.error}</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        resultsDiv.innerHTML = `
+            <div class="result error">
+                <h3 class="error-icon">Error</h3>
+                <p>${error.message}</p>
+            </div>
+        `;
+    } finally {
+        button.disabled = false;
+        buttonText.style.display = 'inline';
+        buttonLoading.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

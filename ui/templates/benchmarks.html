@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Benchmarks - Post-Quantum OIDC{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>📊 Performance Benchmark Results</h2>
+    <p style="color: #666; margin-bottom: 20px;">
+        Comprehensive performance measurements from 32 benchmarked operations.
+        All measurements based on 100 iterations (50 for handshakes).
+    </p>
+    
+    <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <label for="filterOperation"><strong>Filter by Operation Type:</strong></label>
+        <select id="filterOperation" onchange="filterBenchmarks()">
+            <option value="all">All Operations</option>
+            <option value="KEM">KEM Operations</option>
+            <option value="Signature">Signature Operations</option>
+            <option value="JWT">JWT Operations</option>
+            <option value="KEMTLS">KEMTLS Handshake</option>
+            <option value="OIDC">OIDC Flow</option>
+        </select>
+    </div>
+    
+    <div id="benchmarkTable"></div>
+</div>
+
+<div class="card">
+    <h2>🎯 Key Findings</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+        <div class="metric">
+            <div class="metric-label">Fastest KEM</div>
+            <div class="metric-value">Kyber512</div>
+            <div style="color: #666; font-size: 0.9em; margin-top: 5px;">0.057 ms total</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Smallest Signature</div>
+            <div class="metric-value">Falcon-512</div>
+            <div style="color: #666; font-size: 0.9em; margin-top: 5px;">656 bytes</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Fastest Verification</div>
+            <div class="metric-value">Falcon-512</div>
+            <div style="color: #666; font-size: 0.9em; margin-top: 5px;">0.012 ms</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Recommended</div>
+            <div class="metric-value">Kyber768 + ML-DSA-44</div>
+            <div style="color: #666; font-size: 0.9em; margin-top: 5px;">Best balance</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const benchmarkData = {{ benchmarks | tojson }};
+
+function filterBenchmarks() {
+    const filter = document.getElementById('filterOperation').value;
+    let filteredData = benchmarkData;
+    
+    if (filter !== 'all') {
+        filteredData = benchmarkData.filter(b => b.operation.includes(filter));
+    }
+    
+    displayBenchmarks(filteredData);
+}
+
+function displayBenchmarks(data) {
+    const tableDiv = document.getElementById('benchmarkTable');
+    
+    if (!data || data.length === 0) {
+        tableDiv.innerHTML = '<p style="color: #666;">No benchmark data available.</p>';
+        return;
+    }
+    
+    let html = `
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; background: white;">
+                <thead>
+                    <tr style="background: #667eea; color: white;">
+                        <th style="padding: 12px; text-align: left;">Operation</th>
+                        <th style="padding: 12px; text-align: left;">Algorithm</th>
+                        <th style="padding: 12px; text-align: right;">Mean (ms)</th>
+                        <th style="padding: 12px; text-align: right;">Median (ms)</th>
+                        <th style="padding: 12px; text-align: right;">Size (bytes)</th>
+                        <th style="padding: 12px; text-align: center;">Iterations</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+    
+    data.forEach((item, index) => {
+        const bgColor = index % 2 === 0 ? '#f8f9fa' : 'white';
+        html += `
+            <tr style="background: ${bgColor}; border-bottom: 1px solid #e0e0e0;">
+                <td style="padding: 12px;">${item.operation}</td>
+                <td style="padding: 12px;"><strong>${item.algorithm}</strong></td>
+                <td style="padding: 12px; text-align: right; color: #667eea; font-weight: 600;">${item.mean_ms.toFixed(4)}</td>
+                <td style="padding: 12px; text-align: right;">${item.median_ms.toFixed(4)}</td>
+                <td style="padding: 12px; text-align: right;">${item.size_bytes || '-'}</td>
+                <td style="padding: 12px; text-align: center; color: #666;">${item.iterations}</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                </tbody>
+            </table>
+        </div>
+    `;
+    
+    tableDiv.innerHTML = html;
+}
+
+// Initial display
+displayBenchmarks(benchmarkData);
+</script>
+{% endblock %}

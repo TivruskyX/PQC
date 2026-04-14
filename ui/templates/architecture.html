@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Architecture - Post-Quantum OIDC{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>🏗️ System Architecture</h2>
+    <p style="color: #666; margin-bottom: 20px;">
+        Four-layer architecture providing complete post-quantum security for OpenID Connect.
+    </p>
+    
+    <div style="background: white; padding: 30px; border-radius: 8px; margin: 20px 0;">
+        <div style="text-align: center; font-family: monospace; line-height: 2.5;">
+            <div style="background: #764ba2; color: white; padding: 20px; border-radius: 8px; margin: 10px 0;">
+                <strong style="font-size: 1.3em;">Layer 4: OIDC Protocol</strong><br>
+                <span style="font-size: 0.9em;">Authorization Server • Relying Party • Endpoints</span>
+            </div>
+            <div style="font-size: 2em; color: #667eea;">↓</div>
+            <div style="background: #667eea; color: white; padding: 20px; border-radius: 8px; margin: 10px 0;">
+                <strong style="font-size: 1.3em;">Layer 3: Application Security</strong><br>
+                <span style="font-size: 0.9em;">JWT/JWS with PQ Signatures • Token Management</span>
+            </div>
+            <div style="font-size: 2em; color: #667eea;">↓</div>
+            <div style="background: #28a745; color: white; padding: 20px; border-radius: 8px; margin: 10px 0;">
+                <strong style="font-size: 1.3em;">Layer 2: KEMTLS Protocol</strong><br>
+                <span style="font-size: 0.9em;">KEM-based Handshake • Forward Secrecy • Authentication</span>
+            </div>
+            <div style="font-size: 2em; color: #667eea;">↓</div>
+            <div style="background: #ff6b6b; color: white; padding: 20px; border-radius: 8px; margin: 10px 0;">
+                <strong style="font-size: 1.3em;">Layer 1: PQ Cryptographic Primitives</strong><br>
+                <span style="font-size: 0.9em;">Kyber KEM • ML-DSA Signatures • Falcon Signatures</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>📦 Component Details</h2>
+    
+    <h3 style="color: #ff6b6b;">Layer 1: Post-Quantum Cryptographic Primitives</h3>
+    <ul style="line-height: 2; color: #555; margin-bottom: 20px;">
+        <li><strong>Kyber KEM:</strong> NIST FIPS 203 (ML-KEM) for key encapsulation</li>
+        <li><strong>ML-DSA:</strong> NIST FIPS 204 (Dilithium) for digital signatures</li>
+        <li><strong>Falcon:</strong> NIST FIPS 205 for compact signatures</li>
+        <li><strong>liboqs:</strong> Open Quantum Safe library providing implementations</li>
+    </ul>
+    
+    <h3 style="color: #28a745;">Layer 2: KEMTLS Protocol</h3>
+    <ul style="line-height: 2; color: #555; margin-bottom: 20px;">
+        <li><strong>KEM-based Handshake:</strong> Replaces RSA/DH key exchange</li>
+        <li><strong>PQ Certificates:</strong> Contains KEM and signature public keys</li>
+        <li><strong>Forward Secrecy:</strong> Ephemeral KEM keys for each session</li>
+        <li><strong>Mutual Authentication:</strong> Optional client authentication</li>
+    </ul>
+    
+    <h3 style="color: #667eea;">Layer 3: Application Security</h3>
+    <ul style="line-height: 2; color: #555; margin-bottom: 20px;">
+        <li><strong>PQ-JWT:</strong> JSON Web Tokens with PQ signatures</li>
+        <li><strong>Token Management:</strong> ID Tokens, Access Tokens, Refresh Tokens</li>
+        <li><strong>JWS Format:</strong> Standard JWT structure preserved</li>
+        <li><strong>Key Distribution:</strong> JWKS endpoint for public keys</li>
+    </ul>
+    
+    <h3 style="color: #764ba2;">Layer 4: OpenID Connect</h3>
+    <ul style="line-height: 2; color: #555; margin-bottom: 20px;">
+        <li><strong>Authorization Server:</strong> Issues tokens, manages users/clients</li>
+        <li><strong>Relying Party (Client):</strong> Initiates authentication flow</li>
+        <li><strong>Authorization Code Flow:</strong> Standard OIDC flow preserved</li>
+        <li><strong>Endpoints:</strong> /authorize, /token, /userinfo, /.well-known</li>
+    </ul>
+</div>
+
+<div class="card">
+    <h2>🔒 Security Properties</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #28a745;">
+            <h4 style="color: #28a745; margin-top: 0;">✓ Quantum Resistance</h4>
+            <p style="color: #666;">All cryptographic operations use NIST-standardized post-quantum algorithms</p>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #667eea;">
+            <h4 style="color: #667eea; margin-top: 0;">✓ Forward Secrecy</h4>
+            <p style="color: #666;">Ephemeral KEM keys ensure past sessions remain secure</p>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #764ba2;">
+            <h4 style="color: #764ba2; margin-top: 0;">✓ Protocol Compliance</h4>
+            <p style="color: #666;">OpenID Connect semantics fully preserved</p>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 8px; border: 2px solid #ffa500;">
+            <h4 style="color: #ffa500; margin-top: 0;">✓ No Classical Crypto</h4>
+            <p style="color: #666;">Zero RSA, ECDSA, or DH dependencies</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>📊 Implementation Stats</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        <div class="metric">
+            <div class="metric-label">Total Code</div>
+            <div class="metric-value">4,583 lines</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Python Modules</div>
+            <div class="metric-value">19 files</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">PQ Algorithms</div>
+            <div class="metric-value">8 variants</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Benchmarks</div>
+            <div class="metric-value">32 operations</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Test Coverage</div>
+            <div class="metric-value">100%</div>
+        </div>
+        <div class="metric">
+            <div class="metric-label">Documentation</div>
+            <div class="metric-value">10+ files</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

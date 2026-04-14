@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}JWT Demo - Post-Quantum OIDC{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>🎫 Post-Quantum JWT Tokens</h2>
+    <p style="color: #666; margin-bottom: 20px;">
+        Create and verify JSON Web Tokens (JWT) signed with post-quantum digital signatures.
+        JWT format remains unchanged - only the signature algorithm is post-quantum resistant.
+    </p>
+    
+    <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <label for="jwtAlgorithm"><strong>Select Signature Algorithm:</strong></label>
+        <select id="jwtAlgorithm">
+            <option value="ML-DSA-44" selected>ML-DSA-44 (Fast, Medium Size)</option>
+            <option value="ML-DSA-65">ML-DSA-65 (Balanced)</option>
+            <option value="ML-DSA-87">ML-DSA-87 (Highest Security)</option>
+            <option value="Falcon-512">Falcon-512 (Smallest Size)</option>
+            <option value="Falcon-1024">Falcon-1024 (Large, High Security)</option>
+        </select>
+        
+        <label for="userId"><strong>User ID:</strong></label>
+        <input type="text" id="userId" placeholder="Enter user ID..." value="user_123">
+        
+        <button id="runJWT" onclick="runJWT()">
+            <span id="buttonText">Create & Verify JWT</span>
+            <span id="buttonLoading" style="display: none;" class="loading"></span>
+        </button>
+    </div>
+    
+    <div id="results"></div>
+</div>
+
+<div class="card">
+    <h3>📋 JWT Structure</h3>
+    <p style="color: #666; margin-bottom: 15px;">JWT consists of three parts separated by dots:</p>
+    <pre style="background: #f8f9fa; color: #333; padding: 15px;">
+<span style="color: #e74c3c;">header</span>.<span style="color: #3498db;">payload</span>.<span style="color: #2ecc71;">signature</span>
+
+<span style="color: #e74c3c;">Header:</span>    {"alg": "ML-DSA-44", "typ": "JWT"}
+<span style="color: #3498db;">Payload:</span>   {"sub": "user_123", "iss": "...", "exp": ...}
+<span style="color: #2ecc71;">Signature:</span> Post-quantum digital signature (ML-DSA or Falcon)</pre>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function runJWT() {
+    const algorithm = document.getElementById('jwtAlgorithm').value;
+    const userId = document.getElementById('userId').value;
+    const button = document.getElementById('runJWT');
+    const buttonText = document.getElementById('buttonText');
+    const buttonLoading = document.getElementById('buttonLoading');
+    const resultsDiv = document.getElementById('results');
+    
+    button.disabled = true;
+    buttonText.style.display = 'none';
+    buttonLoading.style.display = 'inline-block';
+    
+    try {
+        const response = await fetch('/api/jwt/create', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({algorithm: algorithm, user_id: userId})
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            resultsDiv.innerHTML = `
+                <div class="result success">
+                    <h3 class="success-icon">JWT Created & Verified Successfully!</h3>
+                    
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0;">
+                        <div class="metric">
+                            <div class="metric-label">Algorithm</div>
+                            <div class="metric-value">${data.algorithm}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Creation Time</div>
+                            <div class="metric-value">${data.create_time_ms} ms</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Verification Time</div>
+                            <div class="metric-value">${data.verify_time_ms} ms</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Token Size</div>
+                            <div class="metric-value">${(data.token_size / 1024).toFixed(2)} KB</div>
+                        </div>
+                    </div>
+                    
+                    <h4>🎫 JWT Token (Preview):</h4>
+                    <pre style="white-space: pre-wrap; word-break: break-all;">${data.token}</pre>
+                    
+                    <h4>📋 Decoded Claims:</h4>
+                    <pre>${JSON.stringify(data.claims, null, 2)}</pre>
+                    
+                    <p style="margin-top: 20px; padding: 15px; background: #d4edda; border-radius: 8px; color: #155724;">
+                        <strong>✓ ${data.message}</strong>
+                    </p>
+                </div>
+            `;
+        } else {
+            resultsDiv.innerHTML = `
+                <div class="result error">
+                    <h3 class="error-icon">Error</h3>
+                    <p>${data.error}</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        resultsDiv.innerHTML = `
+            <div class="result error">
+                <h3 class="error-icon">Error</h3>
+                <p>${error.message}</p>
+            </div>
+        `;
+    } finally {
+        button.disabled = false;
+        buttonText.style.display = 'inline';
+        buttonLoading.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

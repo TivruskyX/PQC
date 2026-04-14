@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}KEMTLS Demo - Post-Quantum OIDC{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>🔑 KEMTLS Handshake Demonstration</h2>
+    <p style="color: #666; margin-bottom: 20px;">
+        KEMTLS replaces traditional TLS certificate-based key exchange with Key Encapsulation Mechanisms (KEMs).
+        This provides better post-quantum security and reduced handshake complexity.
+    </p>
+    
+    <div style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <label for="algorithm"><strong>Select KEM Algorithm:</strong></label>
+        <select id="algorithm">
+            <option value="Kyber512">Kyber512 (NIST Level 1)</option>
+            <option value="Kyber768" selected>Kyber768 (NIST Level 3 - Recommended)</option>
+            <option value="Kyber1024">Kyber1024 (NIST Level 5)</option>
+        </select>
+        
+        <button id="runHandshake" onclick="runHandshake()">
+            <span id="buttonText">Run KEMTLS Handshake</span>
+            <span id="buttonLoading" style="display: none;" class="loading"></span>
+        </button>
+    </div>
+    
+    <div id="results"></div>
+</div>
+
+<div class="card">
+    <h3>📋 How KEMTLS Works</h3>
+    <ol style="line-height: 2; color: #555;">
+        <li><strong>Client Hello:</strong> Client generates ephemeral KEM key pair and sends public key</li>
+        <li><strong>Server Hello:</strong> Server encapsulates shared secret using client's public key</li>
+        <li><strong>Certificate:</strong> Server sends certificate containing its KEM public key</li>
+        <li><strong>Key Derivation:</strong> Both parties derive session keys from shared secrets</li>
+        <li><strong>Finished:</strong> Handshake completes, encrypted communication begins</li>
+    </ol>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function runHandshake() {
+    const algorithm = document.getElementById('algorithm').value;
+    const button = document.getElementById('runHandshake');
+    const buttonText = document.getElementById('buttonText');
+    const buttonLoading = document.getElementById('buttonLoading');
+    const resultsDiv = document.getElementById('results');
+    
+    // Disable button and show loading
+    button.disabled = true;
+    buttonText.style.display = 'none';
+    buttonLoading.style.display = 'inline-block';
+    
+    try {
+        const response = await fetch('/api/kemtls/handshake', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({algorithm: algorithm})
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            resultsDiv.innerHTML = `
+                <div class="result success">
+                    <h3 class="success-icon">Handshake Successful!</h3>
+                    
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0;">
+                        <div class="metric">
+                            <div class="metric-label">Algorithm</div>
+                            <div class="metric-value">${data.algorithm}</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Total Time</div>
+                            <div class="metric-value">${data.total_time_ms} ms</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Secrets Match</div>
+                            <div class="metric-value">${data.secrets_match ? '✓' : '✗'}</div>
+                        </div>
+                    </div>
+                    
+                    <h4>⏱️ Timing Breakdown:</h4>
+                    <div class="step">
+                        <span class="step-number">1</span>
+                        <strong>Client Keygen:</strong> ${data.keygen_time_ms} ms
+                    </div>
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <strong>Server Encapsulation:</strong> ${data.encap_time_ms} ms
+                    </div>
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <strong>Client Decapsulation:</strong> ${data.decap_time_ms} ms
+                    </div>
+                    
+                    <h4>📦 Message Sizes:</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0;">
+                        <div class="metric">
+                            <div class="metric-label">Client Public Key</div>
+                            <div class="metric-value">${data.client_pk_size} bytes</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Server Ciphertext</div>
+                            <div class="metric-value">${data.ciphertext_size} bytes</div>
+                        </div>
+                        <div class="metric">
+                            <div class="metric-label">Shared Secret</div>
+                            <div class="metric-value">${data.shared_secret_size} bytes</div>
+                        </div>
+                    </div>
+                    
+                    <p style="margin-top: 20px; padding: 15px; background: #d4edda; border-radius: 8px; color: #155724;">
+                        <strong>✓ ${data.message}</strong>
+                    </p>
+                </div>
+            `;
+        } else {
+            resultsDiv.innerHTML = `
+                <div class="result error">
+                    <h3 class="error-icon">Error</h3>
+                    <p>${data.error}</p>
+                </div>
+            `;
+        }
+    } catch (error) {
+        resultsDiv.innerHTML = `
+            <div class="result error">
+                <h3 class="error-icon">Error</h3>
+                <p>${error.message}</p>
+            </div>
+        `;
+    } finally {
+        // Re-enable button
+        button.disabled = false;
+        buttonText.style.display = 'inline';
+        buttonLoading.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

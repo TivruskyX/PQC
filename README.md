@@ -167,7 +167,13 @@ ls /usr/local/lib/liboqs*
 git clone https://github.com/TivruskyX/PQC.git
 cd PQC
 
+# Setup wrappers
+cd wasm
+gcc -shared -fPIC kemtls_wrapper.c -o kemtls.so -I/usr/local/include -L/usr/local/lib -loqs
+gcc -shared -fPIC signature_wrapper.c -o signature.so -I/usr/local/include -L/usr/local/lib -loqs
+
 # Run automated setup (creates venv, installs dependencies)
+cd PQC
 source setup_env.sh
 ```
 

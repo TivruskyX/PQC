@@ -164,7 +164,7 @@ ls /usr/local/lib/liboqs*
 
 ```bash
 # Clone the repository (if not already cloned)
-git clone https://github.com/42-answer/PQC.git
+git clone https://github.com/TivruskyX/PQC.git
 cd PQC
 
 # Run automated setup (creates venv, installs dependencies)

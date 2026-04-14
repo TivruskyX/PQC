@@ -18,7 +18,7 @@ lib.kemtls_handshake_timed.argtypes = [
 lib.kemtls_handshake_timed.restype = None
 
 
-def kemtls_handshake(algorithm="Kyber768"):
+def kemtls_handshake(algorithm="Kyber512"):
 
     alg_map = {
         "Kyber512": b"Kyber512",
@@ -26,7 +26,7 @@ def kemtls_handshake(algorithm="Kyber768"):
         "Kyber1024": b"Kyber1024"
     }
 
-    alg = alg_map.get(algorithm, b"Kyber768")
+    alg = alg_map.get(algorithm, b"Kyber512")
 
     PK_LEN = 1568
     CT_LEN = 1568

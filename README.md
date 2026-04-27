@@ -148,6 +148,11 @@ mkdir build && cd build
 cmake -GNinja -DCMAKE_INSTALL_PREFIX=/usr/local -DBUILD_SHARED_LIBS=ON ..
 ninja
 
+# Optional liboqs build time optimizations
+mkdir build && cd build
+emcmake cmake -GNinja .. -DOQS_USE_OPENSSL=OFF -DBUILD_SHARED_LIBS=OFF -DOQS_BUILD_ONLY_LIB=ON -DOQS_MINIMAL_BUILD="KEM_ml_kem;SIG_ml_dsa"
+ninja
+
 # Install liboqs
 sudo ninja install
 sudo ldconfig
@@ -688,6 +693,10 @@ PQC/
 │   │   ├── client.py               # OIDC Relying Party
 │   │   └── kemtls_transport.py     # KEMTLS integration
 │   │
+│   ├── wrappers/
+│   │   ├── kemtls_native.py
+│   │   └── signature_native.py
+│   │
 │   ├── benchmarks/                 # Performance benchmarking
 │   │   ├── run_benchmarks.py       # Benchmark suite runner
 │   │   └── generate_pdf_report.py  # PDF report generator
@@ -715,6 +724,10 @@ PQC/
 │       ├── benchmarks.html         # Performance data viewer
 │       ├── architecture.html       # System architecture
 │       └── base.html               # Base template
+│
+├── wasm/                             
+│   ├── kemtls_wrapper.c                     
+│   └── signature_wrapper.c
 │
 ├── benchmark_results/              # Performance data
 │   ├── benchmark_results.json      # Raw benchmark data (32 operations)

@@ -4,15 +4,6 @@ liboqs Optimizations:
 1. Faster compilation
 A standard liboqs build spends a lot of time compiling automated tests, benchmarking tools, and example programs. Because we only want the library itself to use in your Python or C wrappers, compiling those extra executables is a waste of time. This flag tells CMake to skip them entirely. Combined with the minimal build flag, this reduces our liboqs compile time from minutes down to just a few seconds.
 
-/*
-2. Reduced wasm size
-The standard liboqs library includes dozens of different post-quantum algorithms (Kyber, Dilithium, Falcon, SPHINCS+, etc.). If we do not use optimization Emscripten compiles all of them into our WebAssembly file, resulting in a payload that can be several megabytes large. The optimized command explicitly tells the compiler to strip away everything except the exact two algorithms we need (ML-KEM-512 and ML-DSA-44). This reduces the final .wasm file size from megabytes to just a few hundred kilobytes, leading to significantly faster download and load times in a browser.
-*/
-
-
-
-
-
 
 
 Wrapper Optimizations:
